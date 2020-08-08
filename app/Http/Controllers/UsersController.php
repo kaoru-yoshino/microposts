@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\User; //追加    
 
-class UsersContoroller extends Controller
+class UsersController extends Controller
 {
     public function index()
     {
