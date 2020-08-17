@@ -82,4 +82,26 @@ class UsersController extends Controller
             'users' => $followers,
         ]);
     }
+   /**
+     * ユーザが追加したお気に入りを一覧表示するページ 
+     *
+     */
+    public function favorite_microposts($id)
+    {
+        // idの値でmicropostを検索して取得
+        $micropost = User::findOrFail($id);
+
+        // 関係するモデルの件数をロード
+        $micropost->loadRelationshipCounts();
+
+        // ユーザのfavorite一覧を取得
+        $favorite_microposts = $micropost->favorite_microposts()->paginate(10);
+
+        // 一覧ビューでそれらを表示
+        return view('users.favorite', [
+            'micropost' => $micropost,
+            'favorite_microposts' => $favorite_microposts,
+        ]);
+    }
+     
 }

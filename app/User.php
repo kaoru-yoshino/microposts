@@ -133,12 +133,69 @@ class User extends Authenticatable
         // それらのユーザが所有する投稿に絞り込む
         return Micropost::whereIn('user_id', $userIds);
     }
+     
+     /**
+     * このユーザがfavoritesしたmicroposts（Micropostモデルとの関係を定義）
+     */
+    public function favorite_microposts()
+    {
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    /**
+     *$micropostIdで指定されたmicropostをfavoriteする。
+     */
+    public function favorite($micropostId)
+    {
+        //すでにfavoriteしているか確認
+        $exist = $this->is_favorite($micropostId);
+        
+        $its_me = $this->id == $micropostId;
+        
+        if ($exist || $its_me) {
+            return false; //すでにファボしているなら何もしない
+        } else {
+            //ファボしていないのならばファボする
+            $this->favorite_microposts()->attach($micropostId);
+            return true;
+        }
+    }
+    
+    /**
+     *$micropostIdで指定されたmicropostをunfavoriteする。
+     */
+    public function unfavorite($micropostId)
+    {
+        //すでにfavoriteしているか確認
+        $exist = $this->is_favorite($micropostId);
+        
+        $its_me = $this->id == $micropostId;
+        
+        if ($exist && !$its_me) {
+        //すでにファボしていればファボを外す
+        $this->favorite_microposts()->detach($micropostId);
+        return true;
+        } else {
+            //未ファボであれば何もしない
+            return false;
+        }
+    }
+    
+     /**
+     * 指定された $micropostIdをこのユーザがファボ中であるか調べる。ファボ中ならtrueを返す。
+     *
+     */
+     public function is_favorite($micropostId)
+     {
+         
+         return $this->favorite_microposts()->where('micropost_id', $micropostId)->exists();
+     }
     
      /**
      * このユーザに関係するモデルの件数をロードする。
      */
     public function loadRelationshipCounts()
     {
-        $this->loadCount(['microposts', 'followings', 'followers']);
+        $this->loadCount(['microposts', 'followings', 'followers', 'favorite_microposts']);
     }
 }
