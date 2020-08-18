@@ -150,9 +150,9 @@ class User extends Authenticatable
         //すでにfavoriteしているか確認
         $exist = $this->is_favorite($micropostId);
         
-        $its_me = $this->id == $micropostId;
         
-        if ($exist || $its_me) {
+        
+        if ($exist) {
             return false; //すでにファボしているなら何もしない
         } else {
             //ファボしていないのならばファボする
@@ -169,9 +169,8 @@ class User extends Authenticatable
         //すでにfavoriteしているか確認
         $exist = $this->is_favorite($micropostId);
         
-        $its_me = $this->id == $micropostId;
         
-        if ($exist && !$its_me) {
+        if ($exist) {
         //すでにファボしていればファボを外す
         $this->favorite_microposts()->detach($micropostId);
         return true;
